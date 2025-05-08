@@ -3,10 +3,16 @@ name: Extract Unique Countries from URL
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write  # <== Izinkan push ke repo
+
 jobs:
   extract-countries:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Download allproxy.txt
         run: |
           curl -o allproxy.txt https://raw.githubusercontent.com/stpdwrld/Stupid-Tunnel/refs/heads/main/allproxy.txt
@@ -18,11 +24,10 @@ jobs:
       - name: Show extracted countries
         run: cat countries.txt
 
-      - name: Save to repo
+      - name: Commit and push result
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git pull
           git add countries.txt
-          git commit -m "Update countries list from allproxy.txt"
+          git commit -m "Update countries list from allproxy.txt" || echo "No changes to commit"
           git push
