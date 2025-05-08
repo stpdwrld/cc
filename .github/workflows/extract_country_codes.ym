@@ -1,29 +1,26 @@
-name: Extract Country Codes
+name: Extract Unique Countries
 
 on:
-  workflow_dispatch:  # Manual trigger
-  schedule:
-    - cron: '0 0 * * *'  # Run daily
+  workflow_dispatch:
 
 jobs:
-  extract_codes:
+  extract-countries:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch Proxy List
-        run: |
-          curl -s -O https://raw.githubusercontent.com/stpdwrld/Stupid-Tunnel/main/allproxy.txt
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Extract and Format Country Codes
+      - name: Extract unique countries
         run: |
-          # Langsung ambil kolom ke-3 (country_code), hapus duplikat, dan urutkan
-          awk -F',' '{print $3}' allproxy.txt | sort | uniq > country_codes.txt
+          cut -d',' -f3 proxies.csv | sort | uniq > countries.txt
           
-          # Hasilkan output
-          echo "✅ Country Codes Extracted:"
-          cat country_codes.txt
+      - name: Show extracted countries
+        run: cat countries.txt
 
-      - name: Upload as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: country-codes
-          path: country_codes.txt
+      - name: Commit and push result
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git add countries.txt
+          git commit -m "Add unique countries list"
+          git push
