@@ -1,4 +1,4 @@
-name: Extract Unique Countries
+name: Extract Unique Countries from URL
 
 on:
   workflow_dispatch:
@@ -7,20 +7,22 @@ jobs:
   extract-countries:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Download allproxy.txt
+        run: |
+          curl -o allproxy.txt https://raw.githubusercontent.com/stpdwrld/Stupid-Tunnel/refs/heads/main/allproxy.txt
 
       - name: Extract unique countries
         run: |
-          cut -d',' -f3 proxies.csv | sort | uniq > countries.txt
-          
+          cut -d',' -f3 allproxy.txt | sort | uniq > countries.txt
+
       - name: Show extracted countries
         run: cat countries.txt
 
-      - name: Commit and push result
+      - name: Save to repo
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@users.noreply.github.com"
+          git pull
           git add countries.txt
-          git commit -m "Add unique countries list"
+          git commit -m "Update countries list from allproxy.txt"
           git push
