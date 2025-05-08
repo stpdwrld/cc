@@ -1,0 +1,29 @@
+name: Extract Country Codes
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 0 * * *'  # Run daily
+
+jobs:
+  extract_codes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Proxy List
+        run: |
+          curl -s -O https://raw.githubusercontent.com/stpdwrld/Stupid-Tunnel/main/allproxy.txt
+
+      - name: Extract and Format Country Codes
+        run: |
+          # Langsung ambil kolom ke-3 (country_code), hapus duplikat, dan urutkan
+          awk -F',' '{print $3}' allproxy.txt | sort | uniq > country_codes.txt
+          
+          # Hasilkan output
+          echo "✅ Country Codes Extracted:"
+          cat country_codes.txt
+
+      - name: Upload as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: country-codes
+          path: country_codes.txt
